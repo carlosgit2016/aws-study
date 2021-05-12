@@ -13,8 +13,8 @@ You control how the instances in your VPC access resources outside the VPC
 #### Subnet
 Range of IP address for AWS 
 
-- Public Subnet for resources that must connect to theinternet
-- Private Subnets for resources that won't be connected oninternet
+- Public Subnet for resources that must connect to the internet
+- Private Subnets for resources that won't be connected on internet
 - Multiple layers of security
     - ACL Access Control lists
     - Security groups
@@ -71,11 +71,12 @@ As we can see we can enable internet access for the instances in a non default s
 - Elastic IP, a elastic IP attached to the instances 
 
 
-#### Internet access for a non default subnet thorugh a NAT device
-Alternatively to the option above you can use a NAT device from the instances to the internet sending first for the igw. You can redirect the traffic from the instance in a private subnet to a NAT device and then the NAT device redirects it to the igw that will redirect it to the internet.
+#### Internet access for a non default subnet thorugh a NAT gateway
+Alternatively to the option above you can use a NAT gateway from the instances to the internet sending first for the igw. You can redirect the traffic from the instance in a private subnet to a NAT gateway and then the NAT gateway redirects it to the igw that will redirect it to the internet.
 
-NAT device translate the IPv4 from a instance to communicate outside VPC and also translate what returns to the instance from the internet
+NAT gateway maps multiple private IPv4 addresses to a single public IPv4 traffic, it helps to initiate outbound connections preventing unsolicited inbound connections from the internet
 
+- NAT (Network Address Translate)
 - Not supported for IPv6 traffic
 - Nat gateway, offered by AWS (Don't require administrations effort)
 - Nat device, in the EC2 called Nat instance
@@ -84,3 +85,34 @@ NAT device translate the IPv4 from a instance to communicate outside VPC and als
 ![Instances associated with a NAT gateway](https://docs.aws.amazon.com/pt_br/vpc/latest/userguide/images/nat-gateway-diagram.png)
 
 In the image the main Route table sends the traffic from the instances to the nateway gateway (0.0.0.0/0 nat-gateway-id) and the NAT gateway sends the traffic for the internet using a Elastic IP associated to him. In the first private subnet (10.0.0.0/24) we have a custom route table that's redirecting the traffic for the internet gateway from the NAT gateway
+
+#### Corporate or home network access
+You can connect your own VPC in your corporate/home datacenter using an IPsec AWS Site-to-Site VPC Connection, Making AWS Cloud as a extesion for your datacenter. Site-to-site VPC Connection consists in two VPC tunnels, a transit or private gtw on AWS side and customer gateway device in your data center. It's a physical device or software appliance that you configure on your side of the Site-to-Site VPC connection.
+
+![AWS Site-to-Site VPN](https://docs.aws.amazon.com/vpc/latest/userguide/images/virtual-private-gateway.png)
+
+#### AWS PrivateLink Connection
+Enables connection to outside your VPC to other AWS Services (Other VPC Endpoint service) or supported AWS Marketplace partner services.
+
+To use it you do not require:
+- Internet Gateway
+- AWS Site-to-Site VPN Connection
+- NAT device
+- public IP address
+- AWS Direct Connect
+
+You require
+- A new VPC endpoint type required by the supported service
+    - It will create a elastic network interface
+
+#### VPC peering
+Connection between two VPCs that enables you to route traffic between them privately. Instances in either VPC can communicate with each other as if they are within the same network. 
+
+Also, VPC/on-premises networks can be interconnected using:
+- Transit Gateways (Regional virtual router for traffic flowing betwenen its attachments)
+
+#### AWS private global network considerations 
+- AWS Regions are connected to multiple Internet Service Providers 
+- AWS Regions are connected to a private global network backbone 
+- Traffic that is in an Availability Zone, or between Availability Zones in all Regions, routes over the AWS private global network
+- Traffic that is between Regions always routes over the AWS private global network, except for China Regions
